@@ -39,6 +39,7 @@ import torch
 import torchvision.models as models
 from torch.autograd import Variable
 import skimage.io
+import pdb
 
 def build_vocab(imgs, params):
   count_thr = params['word_count_threshold']
@@ -168,7 +169,8 @@ def main(params):
     
     jimg = {}
     jimg['split'] = img['split']
-    if 'filename' in img: jimg['file_path'] = os.path.join(img['filepath'], img['filename']) # copy it over, might need
+    
+    #if 'filename' in img: jimg['file_path'] = os.path.join(img['filepath'], img['filename']) # copy it over, might need
     if 'cocoid' in img: jimg['id'] = img['cocoid'] # copy over & mantain an id, if present (e.g. coco ids, useful)
     
     out['images'].append(jimg)
@@ -186,7 +188,8 @@ if __name__ == "__main__":
   parser.add_argument('--output_h5', default='data', help='output h5 file')
 
   # options
-  parser.add_argument('--max_length', default=16, type=int, help='max length of a caption, in number of words. captions longer than this get clipped.')
+  # this has to be adjusted for lung dataset
+  parser.add_argument('--max_length', default=60, type=int, help='max length of a caption, in number of words. captions longer than this get clipped.')
   parser.add_argument('--word_count_threshold', default=5, type=int, help='only words that occur more than this number of times will be put in vocab')
 
   args = parser.parse_args()
