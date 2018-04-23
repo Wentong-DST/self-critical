@@ -2,10 +2,9 @@
 
 This is an unofficial implementation for [Self-critical Sequence Training for Image Captioning](https://arxiv.org/abs/1612.00563). The result of FC model can be replicated. (Not able to replicate Att2in result.)
 
-The author helped me a lot when I tried to replicate the result. Great thanks. The latest topdown and att2in2 model can achieve 1.12 Cider score on Karpathy's test split after self-critical training.
+The latest topdown and att2in2 model can achieve 1.12 Cider score on Karpathy's test split after self-critical training.
 
-This is based on my [neuraltalk2.pytorch](https://github.com/ruotianluo/neuraltalk2.pytorch) repository. The modifications is:
-- Add self critical training.
+This is based on ruotian's [self-critical.pytorch](https://github.com/ruotianluo/self-critical.pytorch) repository.
 
 ## Requirements
 Python 2.7 (because there is no [coco-caption](https://github.com/tylin/coco-caption) version for python 3)
@@ -39,12 +38,11 @@ $ python scripts/prepro_feats.py --input_json data/dataset_coco.json --output_di
 
 (Check the prepro scripts for more options, like other resnet models or other attention sizes.)
 
-**Warning**: the prepro script will fail with the default MSCOCO data because one of their images is corrupted. See [this issue](https://github.com/karpathy/neuraltalk2/issues/4) for the fix, it involves manually replacing one image in the dataset.
 
 ### Start training
 
 ```bash
-$ python train.py --id fc --caption_model fc --input_json data/cocotalk.json --input_fc_dir data/cocotalk_fc --input_att_dir data/cocotalk_att --input_label_h5 data/cocotalk_label.h5 --batch_size 10 --learning_rate 5e-4 --learning_rate_decay_start 0 --scheduled_sampling_start 0 --checkpoint_path log_fc --save_checkpoint_every 6000 --val_images_use 5000 --max_epochs 30
+$ python train.py --id fc --caption_model fc --input_json data/cocotalk.json --input_fc_dir data/cocotalk_fc --input_att_dir data/cocotalk_att --input_label_h5 data/cocotalk_label.h5 --batch_size 10 --learning_rate 1e-3 --learning_rate_decay_start 0 --scheduled_sampling_start 0 --checkpoint_path log_fc --save_checkpoint_every 6000 --val_images_use 5000 --max_epochs 30
 ```
 
 The train script will dump checkpoints into the folder specified by `--checkpoint_path` (default = `save/`). We only save the best-performing checkpoint on validation and the latest checkpoint to save disk space.
@@ -65,7 +63,7 @@ For more options, see `opts.py`.
 
 First you should preprocess the dataset and get the cache for calculating cider score:
 ```
-$ python scripts/prepro_ngrams.py --input_json .../dataset_coco.json --dict_json data/cocotalk.json --output_pkl data/coco-train --split train
+$ python scripts/prepro_ngrams.py --input_json data/dataset_coco.json --dict_json data/cocotalk.json --output_pkl data/coco-train --split train
 ```
 
 And also you need to clone my forked [cider](https://github.com/ruotianluo/cider) repository.
@@ -77,14 +75,12 @@ $ bash scripts/copy_model.sh fc fc_rl
 
 Then
 ```bash
-$ python train.py --id fc_rl --caption_model fc --input_json data/cocotalk.json --input_fc_dir data/cocotalk_fc --input_att_dir data/cocotalk_att --input_label_h5 data/cocotalk_label.h5 --batch_size 10 --learning_rate 5e-5 --start_from log_fc_rl --checkpoint_path log_fc_rl --save_checkpoint_every 6000 --language_eval 1 --val_images_use 5000 --self_critical_after 30
+$ python train.py --id fc_rl --caption_model fc --input_json data/cocotalk.json --input_fc_dir data/cocotalk_fc --input_att_dir data/cocotalk_att --input_label_h5 data/cocotalk_label.h5 --batch_size 10 --learning_rate 1e-3 --start_from log_fc_rl --checkpoint_path log_fc_rl --save_checkpoint_every 6000 --language_eval 1 --val_images_use 5000 --self_critical_after 30
 ```
 
 You will see a huge boost on Cider score, : ).
 
 **A few notes on training.** Starting self-critical training after 30 epochs, the CIDEr score goes up to 1.05 after 600k iterations (including the 30 epochs pertraining).
-
-### Caption images after training
 
 ## Generate image captions
 
@@ -93,7 +89,7 @@ Now place all your images of interest into a folder, e.g. `blah`, and run
 the eval script:
 
 ```bash
-$ python eval.py --model model.pth --infos_path infos.pkl --image_folder blah --num_images 10
+$ python eval.py --model log_fc_rl/model-best.pth --infos_path log_fc_rl/infos_fc_rl-best.pkl --image_folder image/test2014 --num_images 10
 ```
 
 This tells the `eval` script to run up to 10 images from the given folder. If you have a big GPU you can speed up the evaluation by increasing `batch_size`. Use `--num_images -1` to process all images. The eval script will create an `vis.json` file inside the `vis` folder, which can then be visualized with the provided HTML interface:
@@ -108,7 +104,7 @@ Now visit `localhost:8000` in your browser and you should see your predicted cap
 ### Evaluate on Karpathy's test split
 
 ```bash
-$ python eval.py --dump_images 0 --num_images 5000 --model model.pth --infos_path infos.pkl --language_eval 1 
+$ python eval.py --dump_images 0 --num_images 5000 --model log_fc_rl/model-best.pth --infos_path log_fc_rl/infos_fc_rl-best.pkl --language_eval 1 
 ```
 
 The defualt split to evaluate is test. The default inference method is greedy decoding (`--sample_max 1`), to sample from the posterior, set `--sample_max 0`.
@@ -116,12 +112,7 @@ The defualt split to evaluate is test. The default inference method is greedy de
 **Beam Search**. Beam search can increase the performance of the search for greedy decoding sequence by ~5%. However, this is a little more expensive. To turn on the beam search, use `--beam_size N`, N should be greater than 1.
 
 ## Miscellanea
-**Using cpu**. The code is currently defaultly using gpu; there is even no option for switching. If someone highly needs a cpu model, please open an issue; I can potentially create a cpu checkpoint and modify the eval.py to run the model on cpu. However, there's no point using cpu to train the model.
 
 **Train on other dataset**. It should be trivial to port if you can create a file like `dataset_coco.json` for your own dataset.
 
 **Live demo**. Not supported now. Welcome pull request.
-
-## Acknowledgements
-
-Thanks the original [neuraltalk2](https://github.com/karpathy/neuraltalk2) and awesome PyTorch team.
