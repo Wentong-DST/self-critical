@@ -4,7 +4,7 @@ This is an unofficial implementation for [Self-critical Sequence Training for Im
 
 The latest topdown and att2in2 model can achieve 1.12 Cider score on Karpathy's test split after self-critical training.
 
-This is based on ruotian's [self-critical.pytorch](https://github.com/ruotianluo/self-critical.pytorch) repository.
+This is based on Ruotian's [self-critical.pytorch](https://github.com/ruotianluo/self-critical.pytorch) repository.
 
 ## Requirements
 Python 2.7 (because there is no [coco-caption](https://github.com/tylin/coco-caption) version for python 3)
@@ -42,7 +42,7 @@ $ python scripts/prepro_feats.py --input_json data/dataset_coco.json --output_di
 ### Start training
 
 ```bash
-$ python train.py --id fc --caption_model fc --input_json data/cocotalk.json --input_fc_dir data/cocotalk_fc --input_att_dir data/cocotalk_att --input_label_h5 data/cocotalk_label.h5 --batch_size 10 --learning_rate 1e-3 --learning_rate_decay_start 0 --scheduled_sampling_start 0 --checkpoint_path log_fc --save_checkpoint_every 6000 --val_images_use 5000 --max_epochs 30
+$ python train.py --id fc --caption_model fc --input_json data/cocotalk.json --input_fc_dir data/cocotalk_fc --input_att_dir data/cocotalk_att --input_label_h5 data/cocotalk_label.h5 --batch_size 10 --learning_rate 1e-3 --learning_rate_decay_start 0 --scheduled_sampling_start 0 --checkpoint_path log_fc --save_checkpoint_every 2000 --val_images_use 1000 --max_epochs 300 --caption_model topdown --seq_per_img 1
 ```
 
 The train script will dump checkpoints into the folder specified by `--checkpoint_path` (default = `save/`). We only save the best-performing checkpoint on validation and the latest checkpoint to save disk space.
@@ -115,4 +115,3 @@ The defualt split to evaluate is test. The default inference method is greedy de
 
 **Train on other dataset**. It should be trivial to port if you can create a file like `dataset_coco.json` for your own dataset.
 
-**Live demo**. Not supported now. Welcome pull request.
