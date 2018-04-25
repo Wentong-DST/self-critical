@@ -47,6 +47,8 @@ preprocess = trn.Compose([
         trn.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
 
+import sys
+sys.path.append('/media/hd1/home/wangwei/self-critical/')
 from misc.resnet_utils import myResnet
 import misc.resnet as resnet
 

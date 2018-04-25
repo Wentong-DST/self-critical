@@ -20,6 +20,8 @@ import eval_utils
 import misc.utils as utils
 from misc.rewards import init_cider_scorer, get_self_critical_reward
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+
 try:
     import tensorflow as tf
 except ImportError:
