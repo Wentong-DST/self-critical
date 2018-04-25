@@ -42,7 +42,7 @@ $ python scripts/prepro_feats.py --input_json data/dataset_coco.json --output_di
 ### Start training
 
 ```bash
-$ python train.py --id fc --caption_model fc --input_json data/cocotalk.json --input_fc_dir data/cocotalk_fc --input_att_dir data/cocotalk_att --input_label_h5 data/cocotalk_label.h5 --batch_size 10 --learning_rate 1e-3 --learning_rate_decay_start 0 --scheduled_sampling_start 0 --checkpoint_path log_fc --save_checkpoint_every 2000 --val_images_use 1000 --max_epochs 300 --caption_model topdown --seq_per_img 1
+$ python train.py --id fc --input_json data/cocotalk.json --input_fc_dir data/cocotalk_fc --input_att_dir data/cocotalk_att --input_label_h5 data/cocotalk_label.h5 --batch_size 10 --learning_rate 1e-3 --learning_rate_decay_start 0 --scheduled_sampling_start -1 --checkpoint_path log_fc --save_checkpoint_every 2000 --val_images_use 1000 --max_epochs 300 --caption_model topdown --seq_per_img 1
 ```
 
 The train script will dump checkpoints into the folder specified by `--checkpoint_path` (default = `save/`). We only save the best-performing checkpoint on validation and the latest checkpoint to save disk space.
