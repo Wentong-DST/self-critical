@@ -29,7 +29,7 @@ Once we have these, we can now invoke the `prepro_*.py` script, which will read 
 
 ```bash
 $ python scripts/prepro_labels.py --input_json data/dataset_coco.json --output_json data/cocotalk.json --output_h5 data/cocotalk
-$ python scripts/prepro_feats.py --input_json data/dataset_coco.json --output_dir data/cocotalk --images_root $IMAGE_ROOT
+$ python scripts/prepro_feats.py --input_json data/dataset_coco.json --output_dir data/cocotalk --images_root image
 ```
 
 `prepro_labels.py` will map all words that occur <= 5 times to a special `UNK` token, and create a vocabulary for all the remaining words. The image information and vocabulary are dumped into `data/cocotalk.json` and discretized caption data are dumped into `data/cocotalk_label.h5`.
@@ -42,14 +42,12 @@ $ python scripts/prepro_feats.py --input_json data/dataset_coco.json --output_di
 ### Start training
 
 ```bash
-$ python train.py --id fc --input_json data/cocotalk.json --input_fc_dir data/cocotalk_fc --input_att_dir data/cocotalk_att --input_label_h5 data/cocotalk_label.h5 --batch_size 10 --learning_rate 1e-3 --learning_rate_decay_start 0 --scheduled_sampling_start -1 --checkpoint_path log_fc --save_checkpoint_every 2000 --val_images_use 1000 --max_epochs 300 --caption_model topdown --seq_per_img 1
+$ python train.py --id fc --input_json data/cocotalk.json --input_fc_dir data/cocotalk_fc --input_att_dir data/cocotalk_att --input_label_h5 data/cocotalk_label.h5 --batch_size 48 --learning_rate 1e-3 --learning_rate_decay_start 0 --scheduled_sampling_start -1 --checkpoint_path log_fc --save_checkpoint_every 800 --val_images_use 1000 --max_epochs 300 --caption_model topdown --seq_per_img 1
 ```
 
 The train script will dump checkpoints into the folder specified by `--checkpoint_path` (default = `save/`). We only save the best-performing checkpoint on validation and the latest checkpoint to save disk space.
 
 To resume training, you can specify `--start_from` option to be the path saving `infos.pkl` and `model.pth` (usually you could just set `--start_from` and `--checkpoint_path` to be the same).
-
-If you have tensorflow, the loss histories are automatically dumped into `--checkpoint_path`, and can be visualized using tensorboard.
 
 The current command use scheduled sampling, you can also set scheduled_sampling_start to -1 to turn off scheduled sampling.
 
@@ -92,6 +90,10 @@ the eval script:
 $ python eval.py --model log_fc_rl/model-best.pth --infos_path log_fc_rl/infos_fc_rl-best.pkl --image_folder image/test2014 --num_images 10
 ```
 
+```bash
+$ python eval.py --model log_fc/model-best.pth --infos_path log_fc/infos_fc-best.pkl --image_folder image/test2014 --num_images 10
+```
+
 This tells the `eval` script to run up to 10 images from the given folder. If you have a big GPU you can speed up the evaluation by increasing `batch_size`. Use `--num_images -1` to process all images. The eval script will create an `vis.json` file inside the `vis` folder, which can then be visualized with the provided HTML interface:
 
 ```bash
@@ -105,6 +107,10 @@ Now visit `localhost:8000` in your browser and you should see your predicted cap
 
 ```bash
 $ python eval.py --dump_images 0 --num_images 5000 --model log_fc_rl/model-best.pth --infos_path log_fc_rl/infos_fc_rl-best.pkl --language_eval 1 
+```
+
+```bash
+$ python eval.py --dump_images 0 --num_images 500 --model log_fc/model-best.pth --infos_path log_fc/infos_fc-best.pkl --language_eval 1 
 ```
 
 The defualt split to evaluate is test. The default inference method is greedy decoding (`--sample_max 1`), to sample from the posterior, set `--sample_max 0`.
