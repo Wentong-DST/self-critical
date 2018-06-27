@@ -13,7 +13,7 @@ Python 2.7 and PyTorch 0.2 (along with torchvision)
 
 You need to download pretrained resnet model <b>resnet101.pth</b> or <b>resnet50.pth</b> for both training and evaluation. The models can be downloaded from [here](https://drive.google.com/open?id=0B7fNdx_jAqhtbVYzOURMdDNHSGM), and should be placed in `data/imagenet_weights` folder.
 
-Pretrained models are provided [here](https://drive.google.com/open?id=0B7fNdx_jAqhtdE1JRXpmeGJudTg). ??
+Pretrained image caption models (on coco dataset) are provided [here](https://drive.google.com/open?id=0B7fNdx_jAqhtdE1JRXpmeGJudTg).
 
 ## Train your own network on COCO
 
@@ -36,7 +36,7 @@ $ python scripts/prepro_feats.py --input_json data/dataset_coco.json --output_di
 
 The image information and vocabulary are dumped into <b>`cocotalk.json`</b> and discretized caption data are dumped into <b>`cocotalk_label.h5`</b>. Both are stored in `/data` folder.
 
-`prepro_feats.py` extract the resnet101 features (both fc feature and last conv feature) of each image. The features are saved in `data/cocotalk_fc` and `data/cocotalk_att`, and resulting files are about 200GB.
+`prepro_feats.py` extract the resnet101 features (both fc feature and last conv feature) of each image. The features are saved in <b>`.npy`</b> in <b>`data/cocotalk_fc`</b> and <b>`.npz`</b> in <b>`data/cocotalk_att`</b>, and resulting files are about 200GB.
 
 (Check the prepro scripts for more options, like other resnet models or other attention sizes.)
 
@@ -61,7 +61,7 @@ If you'd like to evaluate BLEU/METEOR/CIDEr scores during training in addition t
 
 For more options, see `opts.py`. 
 
-**A few notes on training.** To give you an idea, with the default settings one epoch of MS COCO images is about 11000 iterations. After 1 epoch of training results in validation loss ~2.5 and CIDEr score of ~0.68. By iteration 60,000 CIDEr climbs up to about ~0.84 (validation loss at about 2.4 (under scheduled sampling)).
+A few notes on training. To give you an idea, with the default settings one epoch of MS COCO images is about 11000 iterations. After 1 epoch of training results in validation loss ~2.5 and CIDEr score of ~0.68. By iteration 60,000 CIDEr climbs up to about ~0.84 (validation loss at about 2.4 (under scheduled sampling)).
 
 ### Train using self critical
 
@@ -86,9 +86,7 @@ $ python train.py --id fc_rl --caption_model fc --input_json data/cocotalk.json
 --save_checkpoint_every 6000 --language_eval 1 --val_images_use 5000 --self_critical_after 30
 ```
 
-You will see a huge boost on Cider score, : ).
-
-**A few notes on training.** Starting self-critical training after 30 epochs, the CIDEr score goes up to 1.05 after 600k iterations (including the 30 epochs pertraining).
+Starting self-critical training after 30 epochs, the CIDEr score goes up to 1.05 after 600k iterations (including the 30 epochs pertraining).
 
 ## Generate image captions
 
