@@ -63,7 +63,7 @@ For more options, see `opts.py`.
 
 A few notes on training. To give you an idea, with the default settings one epoch of MS COCO images is about 11000 iterations. After 1 epoch of training results in validation loss ~2.5 and CIDEr score of ~0.68. By iteration 60,000 CIDEr climbs up to about ~0.84 (validation loss at about 2.4 (under scheduled sampling)).
 
-### Train using self critical
+### Train using self-critical
 
 First you should preprocess the dataset and get the cache for calculating cider score:
 ```
@@ -125,7 +125,7 @@ $ python eval.py --dump_images 0 --num_images 500 --model log_fc/model-best.pth
 --infos_path log_fc/infos_fc-best.pkl --language_eval 1 
 ```
 
-The defualt split to evaluate is test. The default inference method is greedy decoding (`--sample_max 1`), to sample from the posterior, set `--sample_max 0`.
+The default split to evaluate is test. The default inference method is greedy decoding (`--sample_max 1`), to sample from the posterior, set `--sample_max 0`.
 
 **Beam Search**. Beam search can increase the performance of the search for greedy decoding sequence by ~5%. However, this is a little more expensive. To turn on the beam search, use `--beam_size N`, N should be greater than 1.
 
